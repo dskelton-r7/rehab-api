@@ -1,0 +1,19 @@
+{
+  "name": "fp-1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "control.async": "^0.5.2",
+    "data.either": "^1.4.0",
+    "data.task": "^3.1.0",
+    "ramda": "^0.19.1",
+    "ramda-fantasy": "^0.4.1",
+    "request": "^2.71.0"
+  }
+}
