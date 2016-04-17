@@ -13,3 +13,12 @@ creative_tech_articles.fork(
                 'Articles written by Creative Technologists include:'
               , done.results.map(f => f.title).join(', '))
 )
+
+
+//all the triage projects which
+var triageCross = api.projects(3)
+              .map(api.findBy({project_type: 'triage', client: {name: 'Disney'}}))
+
+triageCross.fork(
+  (err) => console.log(err),
+  (projects) => console.log('projects:', projects))
