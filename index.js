@@ -6,7 +6,7 @@ const curry = require('ramda').curry
 /*
 The examples below provide a simple way to interface with the rehabstudio api
 by building up a set of computations by declartively describing what you want.
-These are all lazily evaluated, therefore nothing will run until you invoke fork() on the Task monad
+These are all lazily evaluated, therefore nothing will run until you invoke fork() on the task monad
 */
 
 
@@ -20,15 +20,17 @@ Find all the articles within the first two pages that have been written by Creat
 */
 
 
+
 var creative_tech_articles = api.articles(2)
             .map(api.findBy({author: {description: 'Creative Technologist'}}))
+            .map(api.sortBy('-date'))
 
 
 creative_tech_articles.fork(
     (err) => console.log('ERROR:', err)
   , (done) => console.log(
                 'Articles written by Creative Technologists include:'
-              , done.results.map(f => f.title).join(', '))
+              , done.results.map(f => f.title).join(', '), done.results.length)
 )
 
 
@@ -50,6 +52,7 @@ var triage = api.projects(3)
 triage.fork(
     (err) => console.log(err)
   , (projects) => console.log('projects:', projects))
+
 
 
 

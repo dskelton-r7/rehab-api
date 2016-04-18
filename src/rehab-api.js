@@ -1,11 +1,14 @@
-const R = require('ramda')
-const Maybe = require('ramda-fantasy').Maybe
-const Either = require('data.either');
-const Task = require('data.task')
+const R       = require('ramda')
+const Maybe   = require('ramda-fantasy').Maybe
+const Either  = require('data.either');
+const Task    = require('data.task')
 const request = require('request')
-const Async = require('control.async')(Task)
-const utils = require('./utils')
-const {Debug, merge} = utils;
+const Async   = require('control.async')(Task)
+const utils   = require('./utils')
+const moment  = require('moment')
+
+
+const {Debug, merge}  = utils;
 const {last, range, curry, compose, concat, prop, lensProp, filter, over, map, reduce, where, equals} = R
 const set = R.set
 const flatMap = R.chain
@@ -107,7 +110,7 @@ const prevOf = compose(Props.previous, lastOf)
  */
 
 
-const find = function find(predicate){
+const find = function find(op, predicate){
     return compose(
         (x) =>
         set(Lenses.count
@@ -115,7 +118,7 @@ const find = function find(predicate){
               , x)
       , set(Lenses.previous, null)
       , set(Lenses.next, null)
-      , over(Lenses.results, filter(predicate)))
+      , over(Lenses.results, op(predicate)))
 }
 
 
@@ -195,7 +198,28 @@ rehabstudio.prototype.of = function of(options){
 rehabstudio.of = rehabstudio.prototype.of
 
 
+
+
+rehabstudio.prototype.sortBy = curry(function(operation, f){
+      //Task perform ordering operations by date, title, id, project_type, client, shape
+      const momentOf = (dat) => moment(dat.replace(/\./g, '-'), 'DD-MM-YY')
+      const comparator = function(a, b){
+          switch(operation){
+              case '-date':
+                return momentOf(a.date) > momentOf(b.date)
+              case 'date':
+                return momentOf(a.date) < momentOf(b.date)
+              default:
+                return false
+          }
+      }
+      return find(R.sort, comparator)(f)
+});
+
+
+
 rehabstudio.prototype.findBy = curry(function(obj, f){
+
     //TODO: Add cases for matching against nested values such as clients or authors
     const lookup = curry(function lookup(spec, testObj){
         return where(map(curry((left, right) => {
@@ -203,7 +227,7 @@ rehabstudio.prototype.findBy = curry(function(obj, f){
               }), spec)
             , testObj)
           })
-    return find(lookup(obj))(f)
+    return find(filter, lookup(obj))(f)
 })
 
 
