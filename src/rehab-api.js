@@ -54,7 +54,7 @@ const mergeResult = reduce((a, {results}) => concat(a, results), [])
 
 
 /**
- * 
+ *
  *
  *
  * @summary setter :: Function(a Function, b Any, c JSON) -> Function(x Function, y Any, z JSON)

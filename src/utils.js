@@ -21,7 +21,13 @@ const Debug = curry(function debug(x){
   return x
 })
 
+
+const liftA2 = curry(function liftA2(f, functor1, functor2) {
+  return functor1.map(f).ap(functor2);
+});
+
 module.exports = {
-    Http  : Http
-  , Debug : Debug
+    Http    : Http
+  , Debug   : Debug
+  , liftA2 : liftA2
 }
