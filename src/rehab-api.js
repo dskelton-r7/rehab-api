@@ -174,6 +174,13 @@ const makeRange = function makeRange(n){
  * @summary fetch :: a String -> b Int -> Task (Error String, Success [x])
  */
 
+
+
+/*
+    Fetch should only fetch upto what the api returns
+    Any additional fetches should not be allowed
+*/
+
 const fetch = curry(function fetch(resource, n){
     return (n == 1
             ? Http.get(`/${resource}/?page=1`)
@@ -182,7 +189,43 @@ const fetch = curry(function fetch(resource, n){
                     return compose(
                         flatMap(mergeTask(f)), takeN(resource))(makeRange(n))
             }))
+
 })
+
+
+const makePage = (resource, pageN) => {
+  return `/${resource}/?page=${pageN}`;
+}
+
+
+const sequence = curry(function sequence(resource, n){
+
+  /*
+    Recursive chaining of monadic tasks, benefit over the fetch operation is that
+    it wont overfetch, although may be slightly slower as they are not parallel requests
+  */
+
+
+  const run = (monad) => {
+      return monad.chain(a => {
+            if(a.next !== null){
+                n = n + 1
+                var next = makePage(resource, n )
+                return Http.get(next).chain(t => {
+                    a.next = t.next;
+                    a.results = a.results.concat(t.results);
+                    return run(Task.of(a))
+                })
+              }
+              return Task.of(a)
+          })
+  }
+
+  var page = makePage(resource, n);
+  return run(Http.get(page))
+})
+
+
 
 
 function rehabstudio(options){
@@ -201,12 +244,18 @@ rehabstudio.of = rehabstudio.prototype.of
 
 
 rehabstudio.prototype.sortBy = curry(function(operation, f){
+
+      //TODO:Validation on operation methods
+
+      //TODO:Validation, Maybe on undefined or null values
+
+
       //Task perform ordering operations by date, title, id, project_type, client, shape
       const momentOf = (dat) => moment(dat.replace(/\./g, '-'), 'DD-MM-YY')
       const comparator = function(a, b){
           switch(operation){
               case '-date':
-                return momentOf(a.date) > momentOf(b.date)
+                return momentOf(a.date) > momentOf(b.date) //TODO: What is date is not specified
               case 'date':
                 return momentOf(a.date) < momentOf(b.date)
               default:
@@ -232,7 +281,7 @@ rehabstudio.prototype.findBy = curry(function(obj, f){
 
 
 rehabstudio.prototype.articles = fetch('articles')
-rehabstudio.prototype.projects = fetch('projects')
+rehabstudio.prototype.projects = sequence('projects')
 rehabstudio.prototype.featured = fetch('featured')
 rehabstudio.prototype.offices = (_) => fetch('offices', 1)
 rehabstudio.prototype.jobs = (_) => fetch('jobs', 1)

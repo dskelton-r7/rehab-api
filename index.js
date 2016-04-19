@@ -31,6 +31,7 @@ creative_tech_articles.fork(
   , (done) => console.log(
                 'Articles written by Creative Technologists include:'
               , done.results.map(f => f.title).join(', '), done.results.length)
+
 )
 
 
@@ -45,8 +46,9 @@ Find the triangle project for the Disney client within the first three pages
 
 
 
-var triage = api.projects(3)
-              .map(api.findBy({project_type: 'triage', client: {name: 'Disney'}}))
+var triage = api.projects(1)
+
+              //.map(api.findBy({project_type: 'triage', client: {name: 'Disney'}}))
 
 
 triage.fork(
@@ -73,6 +75,6 @@ var zip = curry(function(a, b){
 
 var articles_projects = liftA2(zip, creative_tech_articles, triage);
 
-articles_projects.fork(
+/*articles_projects.fork(
     (err) => console.log(err)
-  , (both) => console.log(both))
+  , (both) => console.log(both))*/
