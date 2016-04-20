@@ -163,6 +163,7 @@ const takeN = function takeN(src){
  */
 
 const makeRange = function makeRange(n){
+    if (n === 1 || n === 2) return [n]
     return R.range(2, ++n)
 }
 
