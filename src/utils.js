@@ -7,7 +7,8 @@ const Http = function(baseURL){
     return {
        get: function(url){
           return new Task(function(rej, res){
-              request(baseURL + url, function(err, response, body){
+              var path = url.indexOf('http') > -1 ? url : baseURL + url;
+              request(path, function(err, response, body){
                   if(err) return rej(err)
                   res(JSON.parse(body))
               })

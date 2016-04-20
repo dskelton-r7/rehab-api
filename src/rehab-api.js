@@ -203,24 +203,24 @@ const sequence = curry(function sequence(resource, n){
   /*
     Recursive chaining of monadic tasks, benefit over the fetch operation is that
     it wont overfetch, although may be slightly slower as they are not parallel requests
+
+    Uses a Catamorphism on the Either type to resolve both sides into a task
+    plus gets rid of null checks
   */
 
 
   const run = (monad) => {
       return monad.chain(a => {
-            if(a.next !== null){
-                n = n + 1
-                var next = makePage(resource, n )
-                return Http.get(next).chain(t => {
-                    a.next = t.next;
-                    a.results = a.results.concat(t.results);
-                    return run(Task.of(a))
-                })
-              }
-              return Task.of(a)
+          return Either.fromNullable(a.next).
+                cata(
+                  { Right: compose(flatMap(b => {
+                        a.next = b.next;
+                        a.results = a.results.concat(b.results)
+                        return run(Task.of(a)) }), Http.get)
+                    , Left : () => Task.of(a)
+                  })
           })
   }
-
   var page = makePage(resource, n);
   return run(Http.get(page))
 })
@@ -242,12 +242,13 @@ rehabstudio.of = rehabstudio.prototype.of
 
 
 
-
 rehabstudio.prototype.sortBy = curry(function(operation, f){
 
       //TODO:Validation on operation methods
 
       //TODO:Validation, Maybe on undefined or null values
+
+      const sortOps = ['date', '-date', ]
 
 
       //Task perform ordering operations by date, title, id, project_type, client, shape
@@ -263,6 +264,9 @@ rehabstudio.prototype.sortBy = curry(function(operation, f){
           }
       }
       return find(R.sort, comparator)(f)
+
+
+
 });
 
 
