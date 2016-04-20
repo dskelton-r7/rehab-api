@@ -291,4 +291,13 @@ rehabstudio.prototype.offices = (_) => fetch('offices', 1)
 rehabstudio.prototype.jobs = (_) => fetch('jobs', 1)
 
 
-module.exports = rehabstudio.of({version:1})
+module.exports = {
+      api         : rehabstudio.of({version: 1})
+    , mergeResult : mergeResult
+    , find        : find
+    , mergeTask   : mergeTask
+    , takeN       : takeN
+    , makeRange   : makeRange
+    , fetch       : fetch
+    , sequence    : sequence
+}

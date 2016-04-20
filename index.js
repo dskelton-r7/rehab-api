@@ -1,4 +1,4 @@
-const api = require('./src/rehab-api')
+const api = require('./src/rehab-api').api
 const liftA2 = require('./src/utils').liftA2
 const curry = require('ramda').curry
 
